@@ -1,7 +1,9 @@
 import os
 import requests
 from dotenv import load_dotenv
-from newspaper import Article
+import requests
+import trafilatura
+from bs4 import BeautifulSoup
 from utils.preprocessing import TextPreprocessor
 
 load_dotenv()
@@ -25,20 +27,49 @@ class NewsService:
 
         return response.json()["articles"]
     
-    def get_article(self, url):
-        try:
-            article = Article(url)
-            article.download()
-            article.parse()
-            text = TextPreprocessor.clean_text(article.text[:6000])
-            return {
-                "title": article.title,
-                "authors": article.authors,
-                "publish_date": article.publish_date,
-                "text": text,
-                "top_image": article.top_image,
-            }
+    def get_article(self, article):
+        url = article["url"]
 
-        except Exception as e:
-            print(e)
-            return None
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/138.0.0.0 Safari/537.36"
+            )
+        }
+
+        try:
+            response = requests.get(
+                url,
+                headers=headers,
+                timeout=15
+            )
+
+            response.raise_for_status()
+
+            extracted_text = trafilatura.extract(
+                response.text,
+                include_comments=False,
+                include_tables=False
+            )
+
+        except Exception:
+            extracted_text = None
+
+        # Fallback to NewsAPI content
+        article_text = (
+            extracted_text
+            or article.get("content")
+            or article.get("description")
+            or ""
+        )
+
+        return {
+            "url": url,
+            "title": article.get("title", ""),
+            "text": article_text,
+            "top_image": article.get("urlToImage", ""),
+            "authors": [article.get("author")] if article.get("author") else [],
+            "publish_date": article.get("publishedAt"),
+            "source": article.get("source", {}).get("name", ""),
+        }
