@@ -3,14 +3,20 @@ from sentence_transformers import SentenceTransformer
 
 class KeywordExtractor:
     def __init__(self):
-        embedding_model = SentenceTransformer(
-            "all-MiniLM-L6-v2",
-            device="cpu"
-        )
+        self.model = None
 
-        self.model = KeyBERT(model=embedding_model)
+    def _load_model(self):
+        if self.model is None:
+            embedding_model = SentenceTransformer(
+                "all-MiniLM-L6-v2",
+                device="cpu"
+            )
+            self.model = KeyBERT(model=embedding_model)
 
     def extract_keywords(self, article_text, top_n=10):
+
+        self._load_model()
+
         keywords = self.model.extract_keywords(
             article_text,
             keyphrase_ngram_range=(1, 2),

@@ -28,15 +28,19 @@ st.divider()
 # -------------------------------------------------
 # INITIALIZE SERVICES
 # -------------------------------------------------
+try:
+    news_service = NewsService()
+    summarizer = Summarizer()
+    sentiment_analyzer = SentimentAnalyzer()
+    keyword_extractor = KeywordExtractor()
+    entity_extractor = EntityExtractor()
+    qa_engine = QAEngine()
 
-news_service = NewsService()
-summarizer = Summarizer()
-sentiment_analyzer = SentimentAnalyzer()
-keyword_extractor = KeywordExtractor()
-entity_extractor = EntityExtractor()
-qa_engine = QAEngine()
+    # st.success("✅ Services initialized")
 
-
+except Exception as e:
+    st.exception(e)
+    st.stop()
 # -------------------------------------------------
 # SESSION STATE
 # -------------------------------------------------
