@@ -1,5 +1,3 @@
-# from langchain_ollama import ChatOllama
-# from config import OLLAMA_MODEL
 import os
 from dotenv import load_dotenv
 from huggingface_hub import InferenceClient

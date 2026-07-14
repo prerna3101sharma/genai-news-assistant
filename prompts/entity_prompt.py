@@ -1,9 +1,11 @@
 ENTITY_PROMPT = """
 You are an NLP expert.
 
-Extract all named entities from the article.
+Extract ONLY the 15 most important named entities.
 
 Return ONLY valid JSON.
+
+Do not explain anything.
 
 Example:
 

@@ -21,7 +21,7 @@ class QAEngine:
 
             Article:
 
-            {article.get("text", "")[:6000]}
+            {article.get("text", "")[:3000]}
             """
         # article_text = article_text[:6000]
 

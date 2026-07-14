@@ -6,7 +6,7 @@ from services.sentiment import SentimentAnalyzer
 from services.keyword import KeywordExtractor
 from services.entities import EntityExtractor
 from services.qa_engine import QAEngine
-
+import pandas as pd
 
 # -------------------------------------------------
 # PAGE CONFIG
@@ -184,7 +184,7 @@ if st.session_state.selected_article:
         st.header(article["title"])
 
         if article.get("top_image"):
-            st.image(article["top_image"], use_container_width=True)
+            st.image(article["top_image"], width='stretch')
 
         st.caption(
             f"👤 {', '.join(article.get('authors', ['Unknown']))} | 📅 {article.get('publish_date')}"
@@ -206,7 +206,7 @@ if st.session_state.selected_article:
 
             st.markdown("### 📄 Summary")
 
-            if st.button("Generate Summary", use_container_width=True):
+            if st.button("Generate Summary", width='stretch'):
 
                 with st.spinner("Generating..."):
 
@@ -224,7 +224,7 @@ if st.session_state.selected_article:
 
             st.markdown("### 😊 Sentiment")
 
-            if st.button("Analyze Sentiment", use_container_width=True):
+            if st.button("Analyze Sentiment", width='stretch'):
 
                 with st.spinner("Analyzing..."):
 
@@ -242,7 +242,7 @@ if st.session_state.selected_article:
 
             st.markdown("### 🔑 Keywords")
 
-            if st.button("Extract Keywords", use_container_width=True):
+            if st.button("Extract Keywords", width='stretch'):
 
                 st.session_state.keywords = keyword_extractor.extract_keywords(article["text"])
 
@@ -260,16 +260,20 @@ if st.session_state.selected_article:
 
             st.markdown("### 🏷 Entities")
 
-            if st.button("Extract Entities", use_container_width=True):
+            if st.button("Extract Entities", width='stretch'):
 
                 st.session_state.entities = entity_extractor.extract_entities(article["text"])
+                # st.write(st.session_state.entities)
 
             if st.session_state.entities:
+                df = pd.DataFrame(st.session_state.entities)
 
+                df = df.astype(str)          # Force all values to strings
+                df = df.fillna("")   
                 st.dataframe(
-                    st.session_state.entities,
+                    df,
                     hide_index=True,
-                    use_container_width=True
+                    width='stretch'
                 )
 
         # --------------------------------------------
@@ -284,7 +288,7 @@ if st.session_state.selected_article:
                 "Ask anything about this article..."
             )
 
-            if st.button("Ask AI", use_container_width=True):
+            if st.button("Ask AI", width='stretch'):
 
                 answer = qa_engine.answer_question(
                     article,
