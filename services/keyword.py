@@ -1,27 +1,28 @@
-from keybert import KeyBERT
-from sentence_transformers import SentenceTransformer
+import json
+
+from services.llm import LLMService
+from prompts.keyword_prompt import KEYWORD_PROMPT
+
 
 class KeywordExtractor:
+
     def __init__(self):
-        self.model = None
+        self.llm = LLMService()
 
-    def _load_model(self):
-        if self.model is None:
-            embedding_model = SentenceTransformer(
-                "all-MiniLM-L6-v2",
-                device="cpu"
-            )
-            self.model = KeyBERT(model=embedding_model)
+    def extract_keywords(self, article_text):
 
-    def extract_keywords(self, article_text, top_n=10):
-
-        self._load_model()
-
-        keywords = self.model.extract_keywords(
-            article_text,
-            keyphrase_ngram_range=(1, 2),
-            stop_words="english",
-            top_n=top_n
+        prompt = KEYWORD_PROMPT.format(
+            text=article_text[:6000]
         )
 
-        return [keyword for keyword, score in keywords]
+        response = self.llm.generate(prompt)
+
+        try:
+            return json.loads(response)
+        except Exception:
+            # Fallback if model returns comma-separated text
+            return [
+                keyword.strip()
+                for keyword in response.split(",")
+                if keyword.strip()
+            ]

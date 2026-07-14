@@ -1,34 +1,23 @@
-import spacy
+import json
 
-LABEL_MAP = {
-    "PERSON": "Person",
-    "ORG": "Organization",
-    "GPE": "Location",
-    "DATE": "Date",
-    "TIME": "Time",
-    "MONEY": "Money",
-    "EVENT": "Event",
-}
+from services.llm import LLMService
+from prompts.entity_prompt import ENTITY_PROMPT
+
 
 class EntityExtractor:
 
     def __init__(self):
-        self.nlp = None
-
-    def _load_model(self):
-        if self.nlp is None:
-            self.nlp = spacy.load("en_core_web_sm")
+        self.llm = LLMService()
 
     def extract_entities(self, article_text):
 
-        self._load_model()
+        prompt = ENTITY_PROMPT.format(
+            text=article_text[:6000]
+        )
 
-        doc = self.nlp(article_text)
+        response = self.llm.generate(prompt)
 
-        return [
-            {
-                "text": ent.text,
-                "label": LABEL_MAP.get(ent.label_, ent.label_)
-            }
-            for ent in doc.ents
-        ]
+        try:
+            return json.loads(response)
+        except Exception:
+            return []

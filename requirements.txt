@@ -13,12 +13,6 @@ huggingface_hub==0.34.4
 langchain==0.3.27
 langchain-community==0.3.29
 
-spacy==3.8.7
-
-keybert==0.9.0
-sentence-transformers==5.1.0
-
-scikit-learn==1.7.1
 numpy==2.3.2
 pandas==2.3.2
 
